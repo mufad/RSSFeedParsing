@@ -22,18 +22,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class MainActivity extends AppCompatActivity {
-   static ArrayList<NewsItems>myData=new ArrayList<>();
+   ArrayList<NewsItems>myData=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ReadRss readRss = new ReadRss(this);
+        ReadRss readRss = new ReadRss(this,myData);
         readRss.execute();
     }
 
 
-    public static void getData(ArrayList<NewsItems>items){
+    public void getData(ArrayList<NewsItems>items){
         for (int i=0; i<items.size(); i++){
             myData.add(items.get(i));
 
@@ -41,14 +41,15 @@ public class MainActivity extends AppCompatActivity {
     }
     class ReadRss extends AsyncTask<Void, Void, Void>{
 
-         ArrayList<NewsItems>feedItems = new ArrayList<>();
+         ArrayList<NewsItems>feedItems;// = new ArrayList<>();
         Context context;
         String address = "http://www.thedailystar.net/frontpage/rss.xml";
         ProgressDialog progressDialog;
         URL url;
 
-        public ReadRss(Context context) {
+        public ReadRss(Context context,ArrayList<NewsItems>items) {
             this.context = context;
+            feedItems=items;
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage("Loading...");
         }
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     progressDialog.hide();
                 }
             }
-            MainActivity.getData(feedItems);
+            getData(feedItems);
 
             Log.d("TAG", String.valueOf(feedItems.size()));
         }
