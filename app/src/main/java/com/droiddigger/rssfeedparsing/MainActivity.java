@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     public void getData(ArrayList<NewsItems>items){
         for (int i=0; i<items.size(); i++){
             myData.add(items.get(i));
