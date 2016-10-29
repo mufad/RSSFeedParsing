@@ -21,6 +21,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 
+
+
 public class MainActivity extends AppCompatActivity {
    ArrayList<NewsItems>myData=new ArrayList<>();
 
