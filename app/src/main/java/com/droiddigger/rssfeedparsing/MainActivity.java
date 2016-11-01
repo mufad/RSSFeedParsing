@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import org.w3c.dom.Document;
@@ -22,7 +24,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class MainActivity extends AppCompatActivity {
-   static ArrayList<NewsItems>myData=new ArrayList<>();
+    ArrayList<NewsItems>myData=new ArrayList<>();
+
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,16 +36,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ReadRss readRss = new ReadRss(this);
         readRss.execute();
+        myData=readRss.feedItems;
+        Log.d("SIZE", String.valueOf(myData.size()));
     }
 
 
-    public static void getData(ArrayList<NewsItems>items){
-        for (int i=0; i<items.size(); i++){
-            myData.add(items.get(i));
 
-        }
-    }
-    class ReadRss extends AsyncTask<Void, Void, Void>{
+
+    class ReadRss extends AsyncTask<Void, Void, ArrayList<NewsItems>>{
 
          ArrayList<NewsItems>feedItems = new ArrayList<>();
         Context context;
@@ -47,14 +51,14 @@ public class MainActivity extends AppCompatActivity {
         ProgressDialog progressDialog;
         URL url;
 
-        public ReadRss(Context context) {
+            ReadRss(Context context) {
             this.context = context;
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage("Loading...");
         }
 
         @Override
-        protected void onPreExecute() {
+        protected void onPreExecute(){
             if(progressDialog!=null){
                 if (!progressDialog.isShowing()){
                     progressDialog.show();
@@ -64,25 +68,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(ArrayList<NewsItems> data) {
+            super.onPostExecute(data);
             if(progressDialog!=null){
                 if (progressDialog.isShowing()){
                     progressDialog.hide();
                 }
             }
-            MainActivity.getData(feedItems);
-
-            Log.d("TAG", String.valueOf(feedItems.size()));
+            recyclerView=(RecyclerView)findViewById(R.id.recyclerViewMain);
+            layoutManager =new LinearLayoutManager(MainActivity.this);
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setHasFixedSize(true);
+            adapter =new RecyclerViewAdapter(data);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            ProcessXml(Getdata());
-            return null;
+        protected ArrayList<NewsItems> doInBackground(Void... params) {
+            ArrayList<NewsItems> response=ProcessXml(Getdata());
+            return response;
         }
 
-        private void ProcessXml(Document data) {
+        private ArrayList<NewsItems> ProcessXml(Document data) {
 
             if (data != null) {
 
@@ -115,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
+            return feedItems;
         }
 
 
